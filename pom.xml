@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.bankflow</groupId>
-	<artifactId>demo</artifactId>
+	<artifactId>test_task</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>BankFlow</name>
 	<description>A test task for Effective Mobile</description>

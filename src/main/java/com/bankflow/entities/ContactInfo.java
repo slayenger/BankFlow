@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -23,9 +25,14 @@ public class ContactInfo {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private String phoneNumber;
+    @ElementCollection
+    @CollectionTable(name = "phone_numbers", joinColumns = @JoinColumn(name = "contact_info_id"))
+    private Set<String> phoneNumber = new HashSet<>();
 
-    private String email;
+    @ElementCollection
+    @CollectionTable(name = "emails", joinColumns = @JoinColumn(name = "contact_info_id"))
+    private Set<String> email = new HashSet<>();
+
 
     private Date createdAt;
 
