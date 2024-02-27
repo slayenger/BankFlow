@@ -27,6 +27,7 @@ public class User {
 
     private String fullName;
 
+    @Temporal(TemporalType.TIMESTAMP)
     private Date dateOfBirth;
 
     private Date createdAt;
