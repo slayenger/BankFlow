@@ -15,6 +15,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,9 +31,10 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final ContactInfoRepository infoRepository;
     private final BankAccountRepository bankAccountRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
-    public void createUser(RegistrationRequest request) throws DublicateDataException
+    public User createUser(RegistrationRequest request) throws DublicateDataException
     {
         performUserCreationVerification(request);
 
@@ -43,6 +45,8 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
         infoRepository.save(contactInfo);
         bankAccountRepository.save(bankAccount);
+
+        return user;
     }
 
     public void setFullName (String fullName, UUID userId)
@@ -57,7 +61,7 @@ public class UserService implements UserDetailsService {
 
     public void setDateOfBirth(String dateOfBirthString, UUID userId) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-        dateFormat.setLenient(false);
+        //dateFormat.setLenient(false);
         User user = userRepository.getReferenceById(userId);
         user.setDateOfBirth(dateFormat.parse(dateOfBirthString));
         user.setUpdatedAt(new Date());
@@ -95,8 +99,7 @@ public class UserService implements UserDetailsService {
     {
         User user = new User();
         user.setUsername(request.getUsername());
-        //TODO need to encode
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setCreatedAt(new Date());
         return user;
     }
@@ -131,7 +134,6 @@ public class UserService implements UserDetailsService {
                 () -> new UsernameNotFoundException(
                         String.format("User  '%s' not found", username)
                 )
-                //TODO redirect to registerUser
         );
 
         return new CustomUserDetails(
