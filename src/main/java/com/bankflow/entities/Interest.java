@@ -24,7 +24,7 @@ public class Interest {
     @JoinColumn(name = "bank_account_id")
     private BankAccount bankAccount;
 
-    private BigDecimal rate;
+    private BigDecimal initialBalance;
 
     private Date timestamp;
 

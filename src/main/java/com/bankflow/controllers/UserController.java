@@ -12,7 +12,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -54,7 +53,7 @@ public class UserController {
         }
         catch (ParseException err)
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error date format");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error date format.");
         }
     }
 

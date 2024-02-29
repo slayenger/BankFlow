@@ -4,11 +4,13 @@ import com.bankflow.dtos.CustomUserDetails;
 import com.bankflow.dtos.RegistrationRequest;
 import com.bankflow.entities.BankAccount;
 import com.bankflow.entities.ContactInfo;
+import com.bankflow.entities.Interest;
 import com.bankflow.entities.User;
 import com.bankflow.exceptions.DublicateDataException;
 import com.bankflow.exceptions.NegativeBalanceException;
 import com.bankflow.repositories.BankAccountRepository;
 import com.bankflow.repositories.ContactInfoRepository;
+import com.bankflow.repositories.InterestRepository;
 import com.bankflow.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,21 +34,22 @@ public class UserService implements UserDetailsService {
     private final ContactInfoRepository infoRepository;
     private final BankAccountRepository bankAccountRepository;
     private final PasswordEncoder passwordEncoder;
+    private final InterestRepository interestRepository;
 
 
-    public User createUser(RegistrationRequest request) throws DublicateDataException
+    public void createUser(RegistrationRequest request) throws DublicateDataException
     {
         performUserCreationVerification(request);
 
         User user = mapRegistrationUser(request);
         ContactInfo contactInfo = mapRegistrationContacts(request, user);
         BankAccount bankAccount = mapRegistrationBankAccount(request, user);
+        Interest interest = mapRegistrationInterest(request, bankAccount);
 
         userRepository.save(user);
         infoRepository.save(contactInfo);
         bankAccountRepository.save(bankAccount);
-
-        return user;
+        interestRepository.save(interest);
     }
 
     public void setFullName (String fullName, UUID userId)
@@ -61,7 +64,6 @@ public class UserService implements UserDetailsService {
 
     public void setDateOfBirth(String dateOfBirthString, UUID userId) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-        //dateFormat.setLenient(false);
         User user = userRepository.getReferenceById(userId);
         user.setDateOfBirth(dateFormat.parse(dateOfBirthString));
         user.setUpdatedAt(new Date());
@@ -125,6 +127,14 @@ public class UserService implements UserDetailsService {
         bankAccount.setBalance(request.getInitialAmount());
         bankAccount.setCreatedAt(new Date());
         return bankAccount;
+    }
+
+    private Interest mapRegistrationInterest(RegistrationRequest request, BankAccount bankAccount)
+    {
+        Interest interest = new Interest();
+        interest.setBankAccount(bankAccount);
+        interest.setInitialBalance(request.getInitialAmount());
+        return interest;
     }
 
     @Override
