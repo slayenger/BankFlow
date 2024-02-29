@@ -34,8 +34,8 @@ public class SecurityConfig
                 .csrf().disable()
                 .cors().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/user/create", "/auth").permitAll()
-                .requestMatchers("/api/users/**").permitAll()
+                .requestMatchers("/api/user/create", "/auth", "/swagger-ui.html", "/swagger-ui/**",
+                        "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
