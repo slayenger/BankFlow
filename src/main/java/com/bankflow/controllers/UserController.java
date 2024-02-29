@@ -1,5 +1,6 @@
 package com.bankflow.controllers;
 
+import com.bankflow.dtos.CustomUserDetails;
 import com.bankflow.dtos.RegistrationRequest;
 import com.bankflow.exceptions.DublicateDataException;
 import com.bankflow.exceptions.NegativeBalanceException;
@@ -7,6 +8,7 @@ import com.bankflow.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -34,18 +36,20 @@ public class UserController {
     }
 
     @PatchMapping("/set-full-name")
-    public ResponseEntity<?> setFullName (@RequestBody String fullName, @RequestParam UUID userId)
+    public ResponseEntity<?> setFullName (@RequestBody String fullName,
+                                          @AuthenticationPrincipal CustomUserDetails userDetails)
     {
-        userService.setFullName(fullName, userId);
+        userService.setFullName(fullName, userDetails.getUserId());
         return ResponseEntity.status(HttpStatus.OK).body("Nice to meet you, " + fullName);
     }
 
     @PatchMapping("/set-date-of-birth")
-    public ResponseEntity<?> setDateOfBirth (@RequestBody String dateOfBirth, @RequestParam UUID userId)
+    public ResponseEntity<?> setDateOfBirth (@RequestBody String dateOfBirth,
+                                             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
         try
         {
-            userService.setDateOfBirth(dateOfBirth, userId);
+            userService.setDateOfBirth(dateOfBirth, userDetails.getUserId());
             return ResponseEntity.status(HttpStatus.OK).body("The date of birth has been successfully set");
         }
         catch (ParseException err)

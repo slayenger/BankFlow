@@ -2,6 +2,7 @@ package com.bankflow.controllers;
 
 import com.bankflow.dtos.ChangeEmailRequest;
 import com.bankflow.dtos.ChangeNumberRequest;
+import com.bankflow.dtos.CustomUserDetails;
 import com.bankflow.exceptions.DataNotFoundException;
 import com.bankflow.exceptions.DublicateDataException;
 import com.bankflow.exceptions.InvalidEmailOperationException;
@@ -10,6 +11,7 @@ import com.bankflow.services.ContactInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -22,11 +24,12 @@ public class ContactInfoController {
     private final ContactInfoService infoService;
 
     @PatchMapping("/add-email")
-    public ResponseEntity<?> addEmailToUser(@RequestBody String email, @RequestParam UUID userId)
+    public ResponseEntity<?> addEmailToUser(@RequestBody String email,
+                                            @AuthenticationPrincipal CustomUserDetails userDetails)
     {
         try
         {
-            infoService.addEmailToUser(email, userId);
+            infoService.addEmailToUser(email, userDetails.getUserId());
             return ResponseEntity.status(HttpStatus.OK).body("Email " + email + " successfully added.");
         }
         catch (DublicateDataException err)
@@ -36,11 +39,12 @@ public class ContactInfoController {
     }
 
     @PatchMapping("/add-phone-number")
-    public ResponseEntity<?> addPhoneNumber(@RequestBody String phoneNumber, @RequestParam UUID userId)
+    public ResponseEntity<?> addPhoneNumber(@RequestBody String phoneNumber,
+                                            @AuthenticationPrincipal CustomUserDetails userDetails)
     {
         try
         {
-            infoService.addPhoneNumberToUser(phoneNumber, userId);
+            infoService.addPhoneNumberToUser(phoneNumber, userDetails.getUserId());
             return ResponseEntity.status(HttpStatus.OK).body("Phone number " + phoneNumber + " successfully added.");
         }
         catch (DublicateDataException err)
@@ -50,11 +54,12 @@ public class ContactInfoController {
     }
 
     @PatchMapping("/change-email")
-    public ResponseEntity<?> changeEmail(@RequestBody ChangeEmailRequest changeEmailRequest, @RequestParam UUID userId)
+    public ResponseEntity<?> changeEmail(@RequestBody ChangeEmailRequest changeEmailRequest,
+                                         @AuthenticationPrincipal CustomUserDetails userDetails)
     {
         try
         {
-            infoService.changeMail(changeEmailRequest, userId);
+            infoService.changeMail(changeEmailRequest, userDetails.getUserId());
             return ResponseEntity.status(HttpStatus.OK).body("Email successfully changed.");
         }
         catch (DublicateDataException | DataNotFoundException err)
@@ -64,11 +69,12 @@ public class ContactInfoController {
     }
 
     @PatchMapping("/change-phone-number")
-    public ResponseEntity<?> changePhoneNumber(@RequestBody ChangeNumberRequest request, @RequestParam UUID userId)
+    public ResponseEntity<?> changePhoneNumber(@RequestBody ChangeNumberRequest request,
+                                               @AuthenticationPrincipal CustomUserDetails userDetails)
     {
         try
         {
-            infoService.changePhoneNumber(request, userId);
+            infoService.changePhoneNumber(request, userDetails.getUserId());
             return ResponseEntity.status(HttpStatus.OK).body("Number successfully changed.");
         }
         catch (DublicateDataException | DataNotFoundException err)
@@ -78,11 +84,12 @@ public class ContactInfoController {
     }
 
     @DeleteMapping("/remove-email")
-    public ResponseEntity<?> removeEmail(@RequestBody String email, @RequestParam UUID userId)
+    public ResponseEntity<?> removeEmail(@RequestBody String email,
+                                         @AuthenticationPrincipal CustomUserDetails userDetails)
     {
         try
         {
-            infoService.removeEmail(email, userId);
+            infoService.removeEmail(email, userDetails.getUserId());
             return ResponseEntity.status(HttpStatus.OK).body("Email successfully deleted.");
         }
         catch (DataNotFoundException | InvalidEmailOperationException err)
@@ -92,11 +99,12 @@ public class ContactInfoController {
     }
 
     @DeleteMapping("/remove-phone-number")
-    public ResponseEntity<?> removePhoneNumber(@RequestBody String number, @RequestParam UUID userId)
+    public ResponseEntity<?> removePhoneNumber(@RequestBody String number,
+                                               @AuthenticationPrincipal CustomUserDetails userDetails)
     {
         try
         {
-            infoService.removePhoneNumber(number, userId);
+            infoService.removePhoneNumber(number, userDetails.getUserId());
             return ResponseEntity.status(HttpStatus.OK).body("Phone number successfully deleted.");
         }
         catch (DataNotFoundException | InvalidNumberOperationException err)
