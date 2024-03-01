@@ -35,7 +35,6 @@ public class UserController {
         }
     }
 
-    //TODO имя и дату рождения менять нельзя
     @PatchMapping("/set-full-name")
     public ResponseEntity<?> setFullName (@RequestParam String fullName,
                                           @AuthenticationPrincipal CustomUserDetails userDetails)
@@ -53,7 +52,7 @@ public class UserController {
     }
 
     @PatchMapping("/set-date-of-birth")
-    public ResponseEntity<?> setDateOfBirth (@RequestParam String dateOfBirth,
+    public ResponseEntity<?> setDateOfBirth (@RequestBody String dateOfBirth,
                                              @AuthenticationPrincipal CustomUserDetails userDetails)
     {
         try

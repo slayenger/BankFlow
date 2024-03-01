@@ -11,12 +11,15 @@ import java.util.UUID;
 public interface ContactInfoRepository extends JpaRepository<ContactInfo, UUID> {
     List<ContactInfo> findByPhoneNumberContains(String phoneNumber);
 
-    List<ContactInfo> findByEmailContains(String email);
-
     boolean existsByEmail(String email);
+
+    ContactInfo findByEmail(String email);
+
+    ContactInfo findByPhoneNumber(String phoneNumber);
 
     ContactInfo findByUser_UserId(UUID userId);
 
     boolean existsByPhoneNumber(String phoneNumber);
+
 
 }
