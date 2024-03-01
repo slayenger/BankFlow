@@ -1,6 +1,7 @@
 package com.bankflow.controllers;
 
 import com.bankflow.dtos.CustomUserDetails;
+import com.bankflow.dtos.TransactionNumberRequest;
 import com.bankflow.dtos.TransactionRequest;
 import com.bankflow.exceptions.InvalidTransactionOperationException;
 import com.bankflow.exceptions.NegativeBalanceException;
@@ -34,6 +35,23 @@ public class TransactionController {
         try
         {
             transactionService.createTransaction(sender.getUserId(), receiverId, amount);
+            return ResponseEntity.status(HttpStatus.CREATED).body("The operation was completed successfully");
+        }
+        catch (UserNotFoundException | NegativeBalanceException | InvalidTransactionOperationException err)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err.getMessage());
+        }
+    }
+
+    @PostMapping("/send-money-by-number")
+    public ResponseEntity<?> sendMoneyToUserByNumber(@RequestBody TransactionNumberRequest request,
+                                                     @AuthenticationPrincipal CustomUserDetails sender)
+    {
+        String phoneNumber = request.getPhoneNumber();
+        BigDecimal amount = request.getAmount();
+        try
+        {
+            transactionService.createTransaction(sender.getUserId(), phoneNumber, amount);
             return ResponseEntity.status(HttpStatus.CREATED).body("The operation was completed successfully");
         }
         catch (UserNotFoundException | NegativeBalanceException | InvalidTransactionOperationException err)

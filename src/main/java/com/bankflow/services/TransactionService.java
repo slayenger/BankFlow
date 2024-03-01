@@ -8,6 +8,7 @@ import com.bankflow.exceptions.InvalidTransactionOperationException;
 import com.bankflow.exceptions.NegativeBalanceException;
 import com.bankflow.exceptions.UserNotFoundException;
 import com.bankflow.repositories.BankAccountRepository;
+import com.bankflow.repositories.ContactInfoRepository;
 import com.bankflow.repositories.TransactionRepository;
 import com.bankflow.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final BankAccountRepository bankAccountRepository;
+    private final ContactInfoRepository infoRepository;
     private final BankAccountService bankAccountService;
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionService.class);
 
@@ -54,6 +56,30 @@ public class TransactionService {
 
         LOGGER.info("Transaction completed successfully.");
     }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    public void createTransaction(UUID senderId, String phoneNumber, BigDecimal amount)
+    {
+        LOGGER.info("Starting transaction...");
+
+        UUID receiverId = infoRepository.findByPhoneNumber(phoneNumber).getUser().getUserId();
+
+        validateReceiverExists(receiverId);
+        validateTransactionAmount(amount);
+
+        User sender = userRepository.getReferenceById(senderId);
+        User receiver = userRepository.getReferenceById(receiverId);
+
+        BankAccount senderAccount = bankAccountRepository.findByUser(sender);
+        BankAccount receiverAccount = bankAccountRepository.findByUser(receiver);
+
+        validateSufficientFunds(senderAccount, amount);
+
+        updateBalancesAndSaveTransaction(senderAccount, receiverAccount, amount);
+
+        LOGGER.info("Transaction completed successfully.");
+    }
+
     private void validateReceiverExists(UUID receiverId) {
         if (!userRepository.existsById(receiverId)) {
             String errorMessage = "User with id " + receiverId + " not found.";
