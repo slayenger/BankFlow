@@ -8,6 +8,7 @@ import com.bankflow.entities.Interest;
 import com.bankflow.entities.User;
 import com.bankflow.exceptions.DublicateDataException;
 import com.bankflow.exceptions.NegativeBalanceException;
+import com.bankflow.exceptions.UserDataChangeException;
 import com.bankflow.repositories.BankAccountRepository;
 import com.bankflow.repositories.ContactInfoRepository;
 import com.bankflow.repositories.InterestRepository;
@@ -52,19 +53,28 @@ public class UserService implements UserDetailsService {
         interestRepository.save(interest);
     }
 
+    @Transactional
     public void setFullName (String fullName, UUID userId)
     {
         User user = userRepository.getReferenceById(userId);
+        if (user.getFullName() != null)
+        {
+            throw new UserDataChangeException("You can't change your name.");
+        }
         user.setFullName(fullName);
         user.setUpdatedAt(new Date());
         // TODO сделать проверку что это фио а не вьыфвфоифыфзхлыщф (?)
         userRepository.save(user);
     }
 
-
+    @Transactional
     public void setDateOfBirth(String dateOfBirthString, UUID userId) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
         User user = userRepository.getReferenceById(userId);
+        if (user.getDateOfBirth() != null)
+        {
+            throw new UserDataChangeException("You can't change your date of birth.");
+        }
         user.setDateOfBirth(dateFormat.parse(dateOfBirthString));
         user.setUpdatedAt(new Date());
         userRepository.save(user);
@@ -89,8 +99,7 @@ public class UserService implements UserDetailsService {
             throw new DublicateDataException("User with number " + request.getPhoneNumber() + " is already exist." +
                     " Please, choose a different phone number.");
         }
-        List<ContactInfo> contactInfosByEmail = infoRepository.findByEmailContains(request.getEmail());
-        if (!contactInfosByEmail.isEmpty())
+        if (infoRepository.existsByEmail(request.getEmail()))
         {
             throw new DublicateDataException("User with email " + request.getEmail() + " is already exist." +
                     " Please, choose a different email.");
