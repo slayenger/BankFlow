@@ -9,6 +9,8 @@ import com.bankflow.exceptions.InvalidEmailOperationException;
 import com.bankflow.exceptions.InvalidNumberOperationException;
 import com.bankflow.repositories.ContactInfoRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -19,13 +21,16 @@ public class ContactInfoService {
 
     private final ContactInfoRepository infoRepository;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContactInfoService.class);
 
     public void addEmailToUser(String email, UUID userId)
     {
         if (infoRepository.existsByEmail(email))
         {
-            throw new DublicateDataException("User with email " + email + " is already exist." +
-                    " Please, choose a different email.");
+            String message = "User with email " + email + " is already exist." +
+                    " Please, choose a different email.";
+            LOGGER.error(message);
+            throw new DublicateDataException(message);
         }
         else
         {
@@ -39,8 +44,10 @@ public class ContactInfoService {
     {
         if (infoRepository.existsByPhoneNumber(phoneNumber))
         {
-            throw new DublicateDataException("User with phone number " + phoneNumber + " is already exist." +
-                    " Please, choose a different phone number.");
+            String message = "User with phone number " + phoneNumber + " is already exist." +
+                    " Please, choose a different phone number.";
+            LOGGER.error(message);
+            throw new DublicateDataException(message);
         }
         else
         {
@@ -67,12 +74,16 @@ public class ContactInfoService {
             }
             else
             {
-                throw new DublicateDataException("Email " + newEmail + " already exist.");
+                String message = "Email " + newEmail + " already exist.";
+                LOGGER.error(message);
+                throw new DublicateDataException(message);
             }
         }
         else
         {
-            throw new DataNotFoundException("Email address not found for this user.");
+            String message = "Email address not found for this user.";
+            LOGGER.error(message);
+            throw new DataNotFoundException(message);
         }
     }
 
@@ -93,12 +104,16 @@ public class ContactInfoService {
             }
             else
             {
-                throw new DublicateDataException("Number " + currentNumber + " already exist.");
+                String message = "Number " + currentNumber + " already exist.";
+                LOGGER.error(message);
+                throw new DublicateDataException(message);
             }
         }
         else
         {
-            throw new DataNotFoundException("Number not found for this user.");
+            String message = "Number not found for this user.";
+            LOGGER.error(message);
+            throw new DataNotFoundException(message);
         }
     }
 
@@ -108,11 +123,15 @@ public class ContactInfoService {
 
         if (!contactInfo.getEmail().contains(email))
         {
-            throw new DataNotFoundException("Email address not found for this user.");
+            String message = "Email address not found for this user.";
+            LOGGER.error(message);
+            throw new DataNotFoundException(message);
         }
         else if (contactInfo.getEmail().size() == 1)
         {
-            throw new InvalidEmailOperationException("You can't delete a single email.");
+            String message = "You can't delete a single email.";
+            LOGGER.error(message);
+            throw new InvalidEmailOperationException(message);
         }
         else
         {
@@ -127,11 +146,15 @@ public class ContactInfoService {
 
         if (!contactInfo.getPhoneNumber().contains(number))
         {
-            throw new DataNotFoundException("Phone number not found for this user.");
+            String message = "Phone number not found for this user.";
+            LOGGER.error(message);
+            throw new DataNotFoundException(message);
         }
         else if (contactInfo.getPhoneNumber().size() == 1)
         {
-            throw new InvalidNumberOperationException("You can't delete a single phone number.");
+            String message = "You can't delete a single phone number.";
+            LOGGER.error(message);
+            throw new InvalidNumberOperationException(message);
         }
         else
         {

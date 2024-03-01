@@ -14,6 +14,8 @@ import com.bankflow.repositories.ContactInfoRepository;
 import com.bankflow.repositories.InterestRepository;
 import com.bankflow.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -37,7 +39,7 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final InterestRepository interestRepository;
 
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(User.class);
     public void createUser(RegistrationRequest request) throws DublicateDataException
     {
         performUserCreationVerification(request);
@@ -84,25 +86,33 @@ public class UserService implements UserDetailsService {
     {
         if (request.getInitialAmount().compareTo(BigDecimal.ZERO) < 0)
         {
-            throw new NegativeBalanceException("Balance cannot be negative.");
+            String message = "Balance cannot be negative.";
+            LOGGER.error(message);
+            throw new NegativeBalanceException(message);
         }
 
         if (userRepository.existsByUsername(request.getUsername()))
         {
-            throw new DublicateDataException("User with username " + request.getUsername() + " is already exist." +
-                    " Please, choose a different username.");
+            String message = "User with username " + request.getUsername() + " is already exist." +
+                    " Please, choose a different username.";
+            LOGGER.error(message);
+            throw new DublicateDataException(message);
         }
 
         List<ContactInfo> contactInfosByPhoneNumber = infoRepository.findByPhoneNumberContains(request.getPhoneNumber());
         if (!contactInfosByPhoneNumber.isEmpty())
         {
-            throw new DublicateDataException("User with number " + request.getPhoneNumber() + " is already exist." +
-                    " Please, choose a different phone number.");
+            String message = "User with number " + request.getPhoneNumber() + " is already exist." +
+                    " Please, choose a different phone number.";
+            LOGGER.error(message);
+            throw new DublicateDataException(message);
         }
         if (infoRepository.existsByEmail(request.getEmail()))
         {
-            throw new DublicateDataException("User with email " + request.getEmail() + " is already exist." +
-                    " Please, choose a different email.");
+            String message = "User with email " + request.getEmail() + " is already exist." +
+                    " Please, choose a different email.";
+            LOGGER.error(message);
+            throw new DublicateDataException(message);
         }
     }
 

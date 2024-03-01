@@ -1,7 +1,6 @@
 package com.bankflow.services;
 
 
-import com.bankflow.dtos.TransactionResponse;
 import com.bankflow.entities.BankAccount;
 import com.bankflow.entities.Transaction;
 import com.bankflow.entities.User;
@@ -12,9 +11,9 @@ import com.bankflow.repositories.BankAccountRepository;
 import com.bankflow.repositories.TransactionRepository;
 import com.bankflow.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.data.domain.Page;
-import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,12 +31,14 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final BankAccountRepository bankAccountRepository;
-
     private final BankAccountService bankAccountService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionService.class);
+
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void createTransaction(UUID senderId, UUID receiverId, BigDecimal amount)
     {
+        LOGGER.info("Starting transaction...");
         validateReceiverExists(receiverId);
         validateTransactionAmount(amount);
 
@@ -50,22 +51,30 @@ public class TransactionService {
         validateSufficientFunds(senderAccount, amount);
 
         updateBalancesAndSaveTransaction(senderAccount, receiverAccount, amount);
+
+        LOGGER.info("Transaction completed successfully.");
     }
     private void validateReceiverExists(UUID receiverId) {
         if (!userRepository.existsById(receiverId)) {
-            throw new UserNotFoundException("User with id " + receiverId + " not found.");
+            String errorMessage = "User with id " + receiverId + " not found.";
+            LOGGER.error(errorMessage);
+            throw new UserNotFoundException(errorMessage);
         }
     }
 
     private void validateTransactionAmount(BigDecimal amount) {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidTransactionOperationException("The transfer amount must be greater than zero.");
+            String errorMessage = "The transfer amount must be greater than zero.";
+            LOGGER.error(errorMessage);
+            throw new InvalidTransactionOperationException(errorMessage);
         }
     }
 
     private void validateSufficientFunds(BankAccount senderAccount, BigDecimal amount) {
         if (senderAccount.getBalance().subtract(amount).compareTo(BigDecimal.ZERO) < 0) {
-            throw new NegativeBalanceException("You do not have enough funds to carry out this operation.");
+            String errorMessage = "You do not have enough funds to carry out this operation.";
+            LOGGER.error(errorMessage);
+            throw new NegativeBalanceException(errorMessage);
         }
     }
 

@@ -4,6 +4,8 @@ import com.bankflow.dtos.AuthenticateRequest;
 import com.bankflow.dtos.JwtResponseDTO;
 import com.bankflow.security.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,7 +19,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final JwtTokenUtils jwtTokenUtils;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthService.class);
 
     public JwtResponseDTO authenticateUser(AuthenticateRequest request)
     {
@@ -34,9 +36,9 @@ public class AuthService {
         }
         catch (BadCredentialsException e)
         {
-
-            throw new BadCredentialsException("Error authentication user "
-                    + request.getUsername());
+            String message = "Invalid username or password.";
+            LOGGER.error(message);
+            throw new BadCredentialsException(message);
         }
     }
 }

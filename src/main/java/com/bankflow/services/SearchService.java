@@ -7,6 +7,8 @@ import com.bankflow.exceptions.UserNotFoundException;
 import com.bankflow.repositories.ContactInfoRepository;
 import com.bankflow.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -26,12 +28,15 @@ public class SearchService {
 
     private final UserRepository userRepository;
     private final ContactInfoRepository infoRepository;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
 
     public SearchResponse searchByEmail(String email)
     {
         if (!infoRepository.existsByEmail(email))
         {
-            throw new UserNotFoundException("User with email " + email + " not found.");
+            String message = "User with email " + email + " not found.";
+            LOGGER.error(message);
+            throw new UserNotFoundException(message);
         }
 
         ContactInfo contactInfo = infoRepository.findByEmail(email);
@@ -43,7 +48,9 @@ public class SearchService {
     {
         if (!infoRepository.existsByPhoneNumber(phoneNumber))
         {
-            throw new UserNotFoundException("User with phone number " + phoneNumber + " not found.");
+            String message = "User with phone number " + phoneNumber + " not found.";
+            LOGGER.error(message);
+            throw new UserNotFoundException(message);
         }
         ContactInfo contactInfo = infoRepository.findByPhoneNumber(phoneNumber);
 
@@ -60,7 +67,9 @@ public class SearchService {
 
         if (!usersPage.hasContent())
         {
-            throw new UserNotFoundException("Users born after " + dateOfBirth + " have not been found.");
+            String message = "Users born after " + dateOfBirth + " have not been found.";
+            LOGGER.error(message);
+            throw new UserNotFoundException(message);
         }
 
         List<SearchResponse> searchResponses = usersPage.getContent().stream()
@@ -76,7 +85,9 @@ public class SearchService {
         Page<User> usersPage = userRepository.findByFullNameContains(fullName, pageable);
         if (!usersPage.hasContent())
         {
-            throw new UserNotFoundException("Users with this data: " + fullName + " have not been found.");
+            String message = "Users with this data: " + fullName + " have not been found.";
+            LOGGER.error(message);
+            throw new UserNotFoundException(message);
         }
         List<SearchResponse> searchResponses = usersPage.getContent().stream()
                 .map(user -> new SearchResponse(user.getUsername(), user.getFullName()))
