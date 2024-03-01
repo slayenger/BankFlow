@@ -65,7 +65,6 @@ public class UserService implements UserDetailsService {
         }
         user.setFullName(fullName);
         user.setUpdatedAt(new Date());
-        // TODO сделать проверку что это фио а не вьыфвфоифыфзхлыщф (?)
         userRepository.save(user);
     }
 
